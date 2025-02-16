@@ -401,4 +401,43 @@ const words = [
   'seaside',
   'sandals',
 ].reverse()
+
+if (!checkEmptyPuzzle(puzzle, words)) {
+    console.error('Error')
+    return
+}
 crosswordSolver(puzzle, words)
+
+function getWordsNumber(puzzle) {
+    if (!puzzle)
+        return
+
+    let count = 0
+    for (let i = 0; i < puzzle.length; i++) {
+        if (puzzle[i] === '0' || puzzle[i] === '1' || puzzle[i] === '2')
+            count += parseInt(puzzle[i])
+        else if (puzzle[i] != '.' && puzzle[i] != '\n')
+            return -1
+    }
+    return count
+}
+
+function checkDuplicateWords(words) {
+    if (!Array.isArray(words))
+        return
+
+    for (let i = 0; i < words.length-1; i++) {
+        for (let j = i+1; j < words.length; j++) {
+            if (words[i] === words[j])
+                return false
+        }
+    }
+    return true
+}
+
+function checkEmptyPuzzle(puzzle, words) {
+    if (getWordsNumber(puzzle) !== words.length || !checkDuplicateWords(words)) {
+        return false
+    }
+    return true
+}
