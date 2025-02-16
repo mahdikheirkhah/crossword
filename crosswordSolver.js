@@ -369,9 +369,10 @@ function crosswordSolver(emptyPuzzle, words) {
     backtrack(0);
     // console.log(solutions)
     if (solutions.length === 1) {
-        console.log(solutions[0]);
+        // console.log(solutions[0]);
+        return solutions[0]
     } else {
-        console.log("Error");
+        return "Error"
     }
 }
 const puzzle = `...1...........
@@ -402,11 +403,14 @@ const words = [
   'sandals',
 ].reverse()
 
-if (!checkEmptyPuzzle(puzzle, words)) {
-    console.error('Error')
-    return
+function runPuzzleSolver(puzzle, words) {
+    if (!checkEmptyPuzzle(puzzle, words)) {
+        return 'Error'
+    }
+    return crosswordSolver(puzzle, words)
 }
-crosswordSolver(puzzle, words)
+
+console.log(runPuzzleSolver(puzzle, words))
 
 function getWordsNumber(puzzle) {
     if (!puzzle)
@@ -436,8 +440,12 @@ function checkDuplicateWords(words) {
 }
 
 function checkEmptyPuzzle(puzzle, words) {
+    if (!Array.isArray(words))
+        return false
     if (getWordsNumber(puzzle) !== words.length || !checkDuplicateWords(words)) {
         return false
     }
     return true
 }
+
+module.exports = { runPuzzleSolver }
