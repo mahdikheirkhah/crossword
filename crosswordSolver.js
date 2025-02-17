@@ -95,11 +95,6 @@ function removeWord(word, row, col, direction, table) {
                 }
                 tempRow--;
             }
-            if (canRemove ) {
-                // console.log(currentCell.letter);
-                currentCell.letter = '';
-                //table[row][col + i].letter = '';
-             }
         } 
         else { // Vertical removal
             currentCell = table[row + i][col];
@@ -118,11 +113,9 @@ function removeWord(word, row, col, direction, table) {
                 }
                 tempCol--;
             }
-            if (canRemove ) {
-                // console.log(currentCell.letter);
-                currentCell.letter = '';
-               //table[row + i][col].letter = '';
-             }
+        }
+        if (canRemove) {
+            currentCell.letter = '';
         }
     }
 }
@@ -179,7 +172,7 @@ function findLengthVertical(table) {
                 if (tempI < table.length && !table[tempI][j].hasCountedVertical){
                     while (tempI < table.length && table[tempI][j].value !== -1) {
                         length++;
-                        table[tempI][j].hasCountedVertical = true; // Mark as occupied
+                        table[tempI][j].hasCountedVertical = true;
                         tempI++;
                     }
                 }
@@ -199,7 +192,7 @@ function findLengthHorizontal(table) {
                 if (tempJ < table[i].length && !table[i][tempJ].hasCountedHorizontal){
                     while (tempJ < table[i].length && table[i][tempJ].value !== -1) {
                         length++;
-                        table[i][tempJ].hasCountedHorizontal = true; // Mark as occupied
+                        table[i][tempJ].hasCountedHorizontal = true;
                         tempJ++;
                     }
                 }
@@ -272,8 +265,7 @@ function numberOfIntersection(table){
             }
         }
     }
-    result.sort((a, b) => b.intersection - a.intersection);
-    // console.log(result);
+    result.sort((a, b) => b.intersection - a.intersection); //descending order
     return result;
 }
 
@@ -287,26 +279,18 @@ function crosswordSolver(puzzle, words) {
     let startPositions = numberOfIntersection(table);
     let solutions = [];
     let usedWords = new Set();
-    // for(let i=0; i < table.length; i++){
-    //     for (let j=0; j < table[i].length; j++){
-    //         if (table[i][j].lengthVertical !== -1 || table[i][j].lengthHorizontal !== -1){
-    //             console.log("row: ",i,"\ncolumn: ",j ,"\n",table[i][j]);
-    //         }
-    //     }
-    // }
     function backtrack(index) {
     if (index >= startPositions.length) {
-        // Validate all cells are satisfied (especially 2s)
+        
         for (let pos of startPositions) {
             let cell = table[pos.row][pos.column];
             if (cell.value === 2) {
-                // Ensure both directions are used
                 if (cell.usedHorizontal === 0 || cell.usedVertical === 0) {
-                    return; // Invalid solution
+                    return;
                 }
             }
         }
-        // Store the solution
+
         let solution = table.map(row => row.map(cell => cell.letter || '.').join('')).join('\n');
         solutions.push(solution);
         return;
@@ -317,24 +301,20 @@ function crosswordSolver(puzzle, words) {
     let lengthHorizontal = cell.lengthHorizontal;
     let lengthVertical = cell.lengthVertical;
 
-    // Handle cells with value 2 (MUST place both directions)
     if (cell.value === 2) {
-        // Place horizontal first
+
         if (cell.usedHorizontal === 0) {
             for (let word of wordsByLength[lengthHorizontal] || []) {
                 if (!usedWords.has(word) && canPlaceWord(word, row, column, "horizontal", table)) {
                     usedWords.add(word);
                     placeWord(word, row, column, "horizontal", table);
                     cell.usedHorizontal = 1;
-                    table[row][column].usedHorizontal = 1; // Update directly in the table
 
-                    // Now place vertical
                     for (let word2 of wordsByLength[lengthVertical] || []) {
                         if (!usedWords.has(word2) && word2 !== word && canPlaceWord(word2, row, column, "vertical", table)) {
                             usedWords.add(word2);
                             placeWord(word2, row, column, "vertical", table);
                             cell.usedVertical = 1;
-                            table[row][column].usedVertical = 1; // Update directly in the table
 
                             backtrack(index + 1);
 
@@ -342,7 +322,6 @@ function crosswordSolver(puzzle, words) {
                             removeWord(word2, row, column, "vertical", table);
                             usedWords.delete(word2);
                             cell.usedVertical = 0;
-                            table[row][column].usedVertical = 0; // Reset directly in the table
                         }
                     }
 
@@ -350,56 +329,38 @@ function crosswordSolver(puzzle, words) {
                     removeWord(word, row, column, "horizontal", table);
                     usedWords.delete(word);
                     cell.usedHorizontal = 0;
-                    table[row][column].usedHorizontal = 0; // Reset directly in the table
                 }
             }
         }
     } else {
-        // Handle cells with value 1 (place either horizontal or vertical)
-        // Try horizontal first
-        
         if (lengthHorizontal > 1 && cell.usedHorizontal === 0) {
             for (let word of wordsByLength[lengthHorizontal] || []) {
-                // console.log("horizontal1: ", word);
                 if (!usedWords.has(word) && canPlaceWord(word, row, column, "horizontal", table)) {
-                    // console.log("horizontal2: ", word);
                     usedWords.add(word);
                     placeWord(word, row, column, "horizontal", table);
                     cell.usedHorizontal = 1;
-                    table[row][column].usedHorizontal = 1; // Update directly in the table
 
                     backtrack(index + 1);
 
-                    // Undo
-                    // console.log("word to remove: ", word);
                     removeWord(word, row, column, "horizontal", table);
                     usedWords.delete(word);
                     cell.usedHorizontal = 0;
-                    table[row][column].usedHorizontal = 0; // Reset directly in the table
                 }
             }
         }
 
-        // Try vertical
         if (lengthVertical > 1 && cell.usedVertical === 0) {
             for (let word of wordsByLength[lengthVertical] || []) {
-                // console.log("vertical1:", word );
                 if (!usedWords.has(word) && canPlaceWord(word, row, column, "vertical", table)) {
-                    // console.log("vertical2:", word );
                     usedWords.add(word);
                     placeWord(word, row, column, "vertical", table);
                     cell.usedVertical = 1;
-                    table[row][column].usedVertical = 1; // Update directly in the table
 
                     backtrack(index + 1);
-
-                    // Undo
                     
                     removeWord(word, row, column, "vertical", table);
                     usedWords.delete(word);
-                    
-                    cell.usedVertical = 0;              
-                    table[row][column].usedVertical = 0; // Reset directly in the table
+                    cell.usedVertical = 0;
                 }
             }
         }
@@ -418,5 +379,8 @@ function crosswordSolver(puzzle, words) {
         return "Error";
     }
 }
+const puzzle = '2001\n0..0\n1000\n0..0'
+const words = ['casa', 'alan', 'ciao', 'anta']
 
+crosswordSolver(puzzle, words)
 module.exports = { crosswordSolver }
