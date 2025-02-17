@@ -1,4 +1,4 @@
-const { runPuzzleSolver } = require('./crosswordSolver')
+const { crosswordSolver } = require('./crosswordSolver')
 
 const tests = [
   {
@@ -173,7 +173,7 @@ bikini..r...n..
 
 let i = 0
 for (let t of tests) {
-  let result = runPuzzleSolver(t.puzzle, t.words)
+  let result = crosswordSolver(t.puzzle, t.words)
   if (result !== t.expected) {
     console.log(`
 ERROR: test ${++i}:

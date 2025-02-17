@@ -1,22 +1,58 @@
+function getWordsNumber(puzzle) {
+    if (!puzzle)
+        return
+
+    let count = 0
+    for (let i = 0; i < puzzle.length; i++) {
+        if (puzzle[i] === '0' || puzzle[i] === '1' || puzzle[i] === '2')
+            count += parseInt(puzzle[i])
+        else if (puzzle[i] != '.' && puzzle[i] != '\n')
+            return -1
+    }
+    return count
+}
+
+function checkDuplicateWords(words) {
+    if (!Array.isArray(words))
+        return
+
+    for (let i = 0; i < words.length-1; i++) {
+        for (let j = i+1; j < words.length; j++) {
+            if (words[i] === words[j])
+                return false
+        }
+    }
+    return true
+}
+
+function checkPuzzle(puzzle, words) {
+    if (!Array.isArray(words))
+        return false
+    if (getWordsNumber(puzzle) !== words.length || !checkDuplicateWords(words)) {
+        return false
+    }
+    return true
+}
+
 function canPlaceWord(word, row, col, direction, table) {
     let len = word.length;
 
     if (direction === "horizontal") {
-        if (len > table[row][col].lengthHorizontal) return false; // Out of bounds
+        if (len > table[row][col].lengthHorizontal) return false; 
 
         for (let j = 0; j < len; j++) {
-            if (table[row][col + j].isOccupied) return false; // Blocked cell
+            if (table[row][col + j].isOccupied) return false; 
             if (table[row][col + j].letter !== '' && table[row][col + j].letter !== word[j]) {
-                return false; // Letter mismatch
+                return false;
             }
         }
     } else { // Vertical check
-        if (len > table[row][col].lengthVertical) return false; // Out of bounds
+        if (len > table[row][col].lengthVertical) return false; 
 
         for (let i = 0; i < len; i++) {
-            if (table[row + i][col].isOccupied) return false; // Blocked cell
+            if (table[row + i][col].isOccupied) return false; 
             if (table[row + i][col].letter !== '' && table[row + i][col].letter !== word[i]) {
-                return false; // Letter mismatch
+                return false; 
             }
         }
     }
@@ -39,27 +75,30 @@ function removeWord(word, row, col, direction, table) {
 
     for (let i = 0; i < len; i++) {
         let currentCell;
-        let canRemove = true;  // Assume we can remove unless proven otherwise
+        let canRemove = true;
 
         if (direction === "horizontal") {
             currentCell = table[row][col + i];
 
             // Check if this cell is part of a vertical word
             let tempRow = row - 1;
-            while (tempRow >= 0) { // Move upwards
+            while (tempRow >= 0) {
                 if (table[tempRow][col + i].isStart) {
                     let verticalStart = table[tempRow][col + i];
-                    if (verticalStart.lengthVertical + tempRow >= row) {
-                        canRemove = false;  // It's part of another vertical word
+                    if (verticalStart.lengthVertical + tempRow > row && verticalStart.letter !== '' && table[row -1][col + i].letter !== '') {
+                        canRemove = false;  
                         
                     }
-                     break;// Stop checking once we find a start
+                    break;
+                }   else if(table[tempRow][col + i].value === -1){
+                    break;
                 }
                 tempRow--;
             }
             if (canRemove ) {
+                // console.log(currentCell.letter);
                 currentCell.letter = '';
-                table[row][col + i].letter = '';
+                //table[row][col + i].letter = '';
              }
         } 
         else { // Vertical removal
@@ -67,34 +106,27 @@ function removeWord(word, row, col, direction, table) {
 
             // Check if this cell is part of a horizontal word
             let tempCol = col - 1;
-            while (tempCol >= 0) { // Move left
+            while (tempCol >= 0) {
                 if (table[row + i][tempCol].isStart ) {
                     let horizontalStart = table[row + i][tempCol];
-                    if (horizontalStart.lengthHorizontal + tempCol >= col && table[row + i][tempCol].letter !== '') {
-                        canRemove = false;  // It's part of another horizontal word
-                        
+                    if (horizontalStart.lengthHorizontal + tempCol > col && horizontalStart.letter !== '' && table[row + i][col - 1].letter !== '') {
+                        canRemove = false;  
                     }
-                     break;// Stop checking once we find a start
+                    break;
+                } else if(table[row + i][tempCol].value === -1){
+                    break;
                 }
                 tempCol--;
             }
             if (canRemove ) {
+                // console.log(currentCell.letter);
                 currentCell.letter = '';
-               table[row + i][col].letter = '';
+               //table[row + i][col].letter = '';
              }
         }
-
-        // Only remove the letter if it's safe
-
     }
 }
 
-
-
-function printTable(table) {
-    let output = table.map(row => row.map(cell => (cell.letter === '' ? '.' : cell.letter)).join('')).join('\n');
-    console.log(output);
-}
 
 function convertToTable(emptyPuzzle) {
     let rows = emptyPuzzle.split("\n");
@@ -201,60 +233,67 @@ function numberOfIntersection(table){
                     column: j,
                     row: i,
                 }
-                // for(let k = j; k < table[i].length; k++){
-                //     if(k-1 >= 0) {
-                //         if (table[i][k-1].value === 0 || table[i][k-1].value === 2){
-                //              intersections ++;
-                //         } else if (table[i][k-1].value === 1){
-                //             if()
-                //         }
-                //     }
-                //     if(k+1 >= 0 )
-                //     if(table[i][k].value === -1 ){
-                //         if (k > oneHouse.coulmn ){
-                //             break;                            
-                //         } else{
-                //             continue;
-                //         }
-                //     }
-                //     if(table[i][k].isStart && k !== j){
-                //         intersections += table[i][k].value;
-                //     }
-                // }
-                // for(let k = 0; k < table.length; k++){
-                //     if(table[k][j].value === -1){
-                //         if (k > oneHouse.row ){
-                //             break;                            
-                //         } else{
-                //             continue;
-                //         }
-                //     }
-                //     if(table[k][j].isStart && k !== i){
-                //         intersections += table[k][j].value;
-                //     }
-                // }
-                // oneHouse.intersection = intersections;
+                if(table[i][j].lengthHorizontal > 1 || table[i][j].value === 2){
+                    for(let k = j; k < table[i][j].lengthHorizontal + j; k++){
+                        if(table[i][k].value === -1 ){
+                            break;                            
+                        }                    
+                        if(i-1 >= 0) {
+                            if (table[i-1][k].value === 2 || table[i-1][k].value === 0){
+                                 intersections ++;
+                            } else if (table[i-1][k].value === 1 && table[i-1][k].lengthVertical > 1){
+                                 intersections ++;
+                            }
+                        }
+                        if(table[i][k].isStart && k !== j){
+                            intersections += table[i][k].value;
+                        }
+                    }
+                }
+                if(table[i][j].lengthVertical > 1 || table[i][j].value === 2){
+                    for(let k = i; k < table[i][j].lengthVertical + i; k++){
+                        if(table[k][j].value === -1 ){
+                            break;                            
+                        }                    
+                        if(j-1 >= 0) {
+                            if (table[k][j-1].value === 2 || table[k][j-1].value === 0){
+                                 intersections ++;
+                            } else if (table[k][j-1].value === 1 && table[k][j-1].lengthHorizontal > 1){
+                                 intersections ++;
+                            }
+                        }
+                        if(table[k][j].isStart && k !== i){
+                            intersections += table[k][j].value;
+                        }
+                    }
+                }
+                oneHouse.intersection = intersections;
                 result.push(oneHouse);
             }
         }
     }
     result.sort((a, b) => b.intersection - a.intersection);
+    // console.log(result);
     return result;
 }
 
-function crosswordSolver(emptyPuzzle, words) {
-    let table = convertToTable(emptyPuzzle);
+function crosswordSolver(puzzle, words) {
+    if (!checkPuzzle(puzzle, words)) {
+        console.log("Error");
+        return 'Error'
+    }
+    let table = convertToTable(puzzle);
     let wordsByLength = categorizeWordsByLength(words);
     let startPositions = numberOfIntersection(table);
     let solutions = [];
     let usedWords = new Set();
     // for(let i=0; i < table.length; i++){
-    // //     for (let j=0; j < table[i].length; j++){
-    // //         if (table[i][j].lengthVertical !== -1 || table[i][j].lengthHorizontal !== -1){
-    // //             console.log("row: ",i,"\ncolumn: ",j ,"\n",table[i][j]);
-    // //         }
-    // //     }
-    // // }
+    //     for (let j=0; j < table[i].length; j++){
+    //         if (table[i][j].lengthVertical !== -1 || table[i][j].lengthHorizontal !== -1){
+    //             console.log("row: ",i,"\ncolumn: ",j ,"\n",table[i][j]);
+    //         }
+    //     }
+    // }
     function backtrack(index) {
     if (index >= startPositions.length) {
         // Validate all cells are satisfied (especially 2s)
@@ -321,7 +360,9 @@ function crosswordSolver(emptyPuzzle, words) {
         
         if (lengthHorizontal > 1 && cell.usedHorizontal === 0) {
             for (let word of wordsByLength[lengthHorizontal] || []) {
+                // console.log("horizontal1: ", word);
                 if (!usedWords.has(word) && canPlaceWord(word, row, column, "horizontal", table)) {
+                    // console.log("horizontal2: ", word);
                     usedWords.add(word);
                     placeWord(word, row, column, "horizontal", table);
                     cell.usedHorizontal = 1;
@@ -330,6 +371,7 @@ function crosswordSolver(emptyPuzzle, words) {
                     backtrack(index + 1);
 
                     // Undo
+                    // console.log("word to remove: ", word);
                     removeWord(word, row, column, "horizontal", table);
                     usedWords.delete(word);
                     cell.usedHorizontal = 0;
@@ -341,9 +383,9 @@ function crosswordSolver(emptyPuzzle, words) {
         // Try vertical
         if (lengthVertical > 1 && cell.usedVertical === 0) {
             for (let word of wordsByLength[lengthVertical] || []) {
-                //console.log("vertical1:", word );
+                // console.log("vertical1:", word );
                 if (!usedWords.has(word) && canPlaceWord(word, row, column, "vertical", table)) {
-                    //console.log("vertical2:", word );
+                    // console.log("vertical2:", word );
                     usedWords.add(word);
                     placeWord(word, row, column, "vertical", table);
                     cell.usedVertical = 1;
@@ -367,85 +409,14 @@ function crosswordSolver(emptyPuzzle, words) {
 
 
     backtrack(0);
-    // console.log(solutions)
     if (solutions.length === 1) {
-        // console.log(solutions[0]);
-        return solutions[0]
+        console.log(solutions[0]);
+        return solutions[0];
+
     } else {
-        return "Error"
+        console.log("Error");
+        return "Error";
     }
 }
-const puzzle = `...1...........
-..1000001000...
-...0....0......
-.1......0...1..
-.0....100000000
-100000..0...0..
-.0.....1001000.
-.0.1....0.0....
-.10000000.0....
-.0.0......0....
-.0.0.....100...
-...0......0....
-..........0....`
-const words = [
-  'sun',
-  'sunglasses',
-  'suncream',
-  'swimming',
-  'bikini',
-  'beach',
-  'icecream',
-  'tan',
-  'deckchair',
-  'sand',
-  'seaside',
-  'sandals',
-].reverse()
 
-function runPuzzleSolver(puzzle, words) {
-    if (!checkEmptyPuzzle(puzzle, words)) {
-        return 'Error'
-    }
-    return crosswordSolver(puzzle, words)
-}
-
-console.log(runPuzzleSolver(puzzle, words))
-
-function getWordsNumber(puzzle) {
-    if (!puzzle)
-        return
-
-    let count = 0
-    for (let i = 0; i < puzzle.length; i++) {
-        if (puzzle[i] === '0' || puzzle[i] === '1' || puzzle[i] === '2')
-            count += parseInt(puzzle[i])
-        else if (puzzle[i] != '.' && puzzle[i] != '\n')
-            return -1
-    }
-    return count
-}
-
-function checkDuplicateWords(words) {
-    if (!Array.isArray(words))
-        return
-
-    for (let i = 0; i < words.length-1; i++) {
-        for (let j = i+1; j < words.length; j++) {
-            if (words[i] === words[j])
-                return false
-        }
-    }
-    return true
-}
-
-function checkEmptyPuzzle(puzzle, words) {
-    if (!Array.isArray(words))
-        return false
-    if (getWordsNumber(puzzle) !== words.length || !checkDuplicateWords(words)) {
-        return false
-    }
-    return true
-}
-
-module.exports = { runPuzzleSolver }
+module.exports = { crosswordSolver }
