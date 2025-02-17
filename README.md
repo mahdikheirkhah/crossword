@@ -24,8 +24,8 @@ This project implements a **Crossword Solver** using **backtracking**. The solve
 ### Clone the repository
 
 ```sh
-git clone <repository_url>
-cd crossword-solver
+git clone https://github.com/mahdikheirkhah/crossword.git
+cd crossword
 ```
 
 ---
